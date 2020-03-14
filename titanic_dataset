@@ -1,0 +1,439 @@
+
+# coding: utf-8
+
+# In[19]:
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+# In[20]:
+
+
+df = pd.read_csv("titanic_dataset.csv")
+df.head(2)
+
+
+# In[5]:
+
+
+df.drop(["name","ticket","cabin","boat","body","home.dest"],axis=1,inplace=True) # 
+
+
+# In[6]:
+
+
+df.head()
+
+
+# In[11]:
+
+
+df.pclass.size
+
+
+# In[7]:
+
+
+df.describe()
+
+
+# In[12]:
+
+
+df.describe(include="all")
+
+
+# In[14]:
+
+
+# df.isnull()
+df.isnull().any()
+
+
+# In[15]:
+
+
+df.age.isnull().value_counts()
+
+
+# In[21]:
+
+
+df.age.isnull().value_counts()[True]
+
+
+# In[22]:
+
+
+df.age.isnull().value_counts()[False]
+
+
+# In[25]:
+
+
+# df.age.mean()
+df.age = df.age.fillna(df.age.mean())
+# df.age.fillna(df.age.mean(),inplace=True)
+
+
+# In[26]:
+
+
+df.age.isnull().any()
+
+
+# In[36]:
+
+
+df.fare = df.fare.fillna(df.fare.mean(),inplace=True)
+
+
+# In[37]:
+
+
+df.fare.isnull().any()
+
+
+# In[56]:
+
+
+# df.embarked.mode()[0]
+df.embarked.fillna(df.embarked.mean()[0],inplace=True)
+
+
+# In[32]:
+
+
+df.isnull().any()# to verify any if any true or missing value
+
+
+# In[38]:
+
+
+col =["age","fare"]
+for column in col:
+    if df[column].isnull().any():
+        df[column].fillna(df[column].mean(),inplace=True)
+    else:
+        pass
+
+
+# In[39]:
+
+
+df.age.isnull().any()
+
+
+# In[40]:
+
+
+df.fare.isnull().any()
+
+
+# # Find out total number of Male/Female passenger
+
+# In[42]:
+
+
+df.Gender.value_counts().plot(kind="bar")
+plt.show()
+
+
+# # Find out total number of passenger in each passenger class
+
+# In[49]:
+
+
+df.pclass.value_counts().plot(kind="bar")
+plt.savefig("C:\\Users\\Aahan\\Desktop\\Assignment\\test.png")
+plt.show()
+df.embarked.value_counts().plot(kind="kde")
+plt.show()
+
+
+# In[50]:
+
+
+df.survived.value_counts().plot(kind="bar")
+df.xticks(["survived","Not-survived"])
+plt.show()
+
+
+# # Find out total number of survived/not-survived passengers 
+
+# In[51]:
+
+
+df.survived.value_counts()
+
+
+# In[ ]:
+
+
+df.survived.value_counts().plot(kind="bar")
+df.xticks(["survived","Not-survived"])
+plt.show()
+
+
+# # Find out total number of  passengers of various age group(0-30,31-60,60)
+
+# In[54]:
+
+
+plt.hist(df.age,bins=30,rwidth=9,color='c')
+plt.show()
+
+
+# In[66]:
+
+
+age_grp1 = df.age.where(df.age<=30)
+age_grp2 = df.age.where((df.age>30) & (df.age<=60))
+age_grp3 = df.age.where(df.age>60)
+
+print(age_grp1.count())
+print(age_grp2.count())
+print(age_grp3.count())
+
+
+# In[70]:
+
+
+plt.hist(age_grp1,lebel = "age<=30")
+plt.hist(age_grp2,lebel = "age>30 & age<=60")
+plt.hist(age_grp3,lebel = "age>60")
+plt.legend()
+plt.show()
+
+
+# # Find out which age group survived
+
+# In[74]:
+
+
+df.where (df.survived == 1).age.count()
+
+
+# In[73]:
+
+
+df.where (df.survived == 1).age.plot(kind = "hist")
+plt.show()
+
+
+# # Find out total number of passenger city and passengercalss
+
+# In[75]:
+
+
+grp1 = df.groupby(["embarked","pclass"])
+grp1
+
+
+# In[78]:
+
+
+grp1.groups.keys()
+
+
+# In[79]:
+
+
+len(grp1.groups.keys())
+
+
+# In[80]:
+
+
+grp1.groups
+
+
+# In[81]:
+
+
+grp1.get_group(('C',1))
+
+
+# In[83]:
+
+
+# grp1.get_group(('C',1)).Gender.count()
+grp1.get_group(('C',1)).Gender.size
+
+
+# In[94]:
+
+
+cnt = 0
+for k in grp1.groups.keys():
+#     plt.bar(k[0]+str(k[1]),grp1.get_group(k).Gender.size)
+      plt.bar(cnt,grp1.get_group(k).Gender.size,label = k[0]+str(k[1]))
+      plt.text(cnt,grp1.get_group(k).Gender.size+5,grp1.get_group(k).Gender.size)
+cnt +=1
+plt.legend()
+
+# plt.axis("off")
+plt.show()
+
+
+# In[93]:
+
+
+df.head(2)
+
+
+# # create a group of Gender Vs survived VS embarked and plot  the bar graph of their counts
+
+# In[95]:
+
+
+grp2 =df.groupby(["Gender","survived","embarked"])
+grp2
+
+
+# In[97]:
+
+
+cnt = 0
+for k in grp2.groups.keys():
+    plt.bar(cnt,grp2.get_group(k).Gender.size,label = k[0]+str(k[1])+str(k[2]))
+    plt.text(cnt,grp2.get_group(k).Gender.size+5,grp2.get_group(k).Gender.size)
+    cnt +=1
+plt.legend()
+plt.xticks([])
+# plt.axis("off")
+plt.show()
+
+
+# # Subplotting
+
+# In[102]:
+
+
+tmp =np.random.randint(1,100,60).reshape(10,6)
+df1 = pd.DataFrame(tmp,columns=["A","B","C","D","E","F"])
+df1
+
+
+# In[103]:
+
+
+plt.figure(figsize=(16,4))
+plt.subplot(3,2,1)
+plt.plot(range(10),df1.A)
+plt.subplot(3,2,2)
+plt.bar(range(10),df1.B)
+plt.subplot(3,2,3)
+plt.plot(range(10),df1.C)
+plt.subplot(3,2,4)
+plt.plot(range(10),df1.D)
+plt.subplot(3,2,5)
+plt.plot(range(10),df1.E)
+plt.subplot(3,2,6)
+plt.plot(range(10),df1.F)
+plt.show()
+
+
+# In[104]:
+
+
+df.head(2)
+
+
+# In[105]:
+
+
+df.to_csv("df_csv.csv")
+
+
+# In[ ]:
+
+
+Marge data Freame
+
+
+# In[107]:
+
+
+df2 = df1[["A","B","C"]]
+df3 = df1[["A","E","F"]]
+
+
+# In[110]:
+
+
+pd.merge(df2,df3,indicator=True)
+
+
+# In[111]:
+
+
+pd.merge(df2,df3,how = "left" ,indicator=True)
+
+
+# In[113]:
+
+
+pd.merge(df2,df3,how = "outer" ,indicator=True)
+
+
+# # Sorting
+
+# In[114]:
+
+
+df2
+
+
+# In[119]:
+
+
+df2.sort_index(ascending=False,axis=1)
+
+
+# In[120]:
+
+
+df2.sort_values(by="A",ascending=False)
+
+
+# # Cencatenate
+
+# In[122]:
+
+
+df4 = df2[0:3]
+print(df4)
+print("\n")
+df5 = df2[3:6]
+print(df5)
+
+
+# In[123]:
+
+
+pd.concat([df4,df5],axis=1)
+
+
+# # Joining
+
+# In[125]:
+
+
+df4.join(df5,rsuffix="_")
+
+
+# In[127]:
+
+
+df2.dtype()
+
+
+# In[ ]:
+
+
+df2.C = df2.C.astype("int8")
+
