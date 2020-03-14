@@ -1,0 +1,168 @@
+
+# coding: utf-8
+
+# In[30]:
+
+
+# Author : Amit Kumar Shaw
+# Email : amit120214@gmail.com
+# Designation : Artificial Intelligence Engineer
+# This Algorithm is representing the Naive Bayes for classifying HAM & SPAM messages
+
+
+# ## Import Data and Libraries 
+
+# In[8]:
+
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import matplotlib.pyplot as plt
+import seaborn as sns
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+# In[4]:
+
+
+message=pd.read_csv('/home/utkarsh/LearnBay/ML_Python/sms_spam.csv', sep=',')
+message.head()
+
+
+# ## Exploratory Data Analysis
+
+# In[5]:
+
+
+message.describe()
+
+
+# In[6]:
+
+
+message.groupby('type').describe()
+
+
+# In[7]:
+
+
+message['length']=message['text'].apply(len)
+message.head()
+
+
+# ## Data Visualization
+
+# In[9]:
+
+
+message['length'].plot(bins=50,kind='hist')
+
+
+# In[10]:
+
+
+message.length.describe()
+
+
+# In[12]:
+
+
+message[message['length']==910]['text'].iloc[0]
+
+
+# ## Text Pre-Processing
+
+# In[13]:
+
+
+import string
+mess = 'sample message!...'
+nopunc=[char for char in mess if char not in string.punctuation]
+nopunc=''.join(nopunc)
+print(nopunc)
+
+
+# In[14]:
+
+
+from nltk.corpus import stopwords
+stopwords.words('english')[0:10]
+
+
+# In[15]:
+
+
+nopunc.split()
+
+
+# In[16]:
+
+
+def text_process(mess):
+    nopunc =[char for char in mess if char not in string.punctuation]
+    nopunc=''.join(nopunc)
+    return [word for word in nopunc.split() if word.lower() not in stopwords.words('english')]
+
+
+# In[17]:
+
+
+message['text'].head(5).apply(text_process)
+
+
+# ## Feature Engineering & TFIDF
+
+# In[18]:
+
+
+from sklearn.feature_extraction.text import CountVectorizer
+
+
+# In[20]:
+
+
+bow_transformer = CountVectorizer(analyzer=text_process).fit(message['text'])
+print(len(bow_transformer.vocabulary_))
+
+
+# In[22]:
+
+
+messages_bow = bow_transformer.transform(message['text'])
+
+
+# In[24]:
+
+
+from sklearn.feature_extraction.text import TfidfTransformer
+messages_tfidf=tfidf_transformer.transform(messages_bow)
+print(messages_tfidf.shape)
+
+
+# ## Naive Bayes Classifier
+
+# In[25]:
+
+
+from sklearn.naive_bayes import MultinomialNB
+spam_detect_model = MultinomialNB().fit(messages_tfidf,message['type'])
+
+
+# ## Predictions
+
+# In[27]:
+
+
+all_predictions = spam_detect_model.predict(messages_tfidf)
+print(all_predictions)
+
+
+# ## Model Performance
+
+# In[29]:
+
+
+from sklearn.metrics import classification_report,confusion_matrix
+print(classification_report(message['type'],all_predictions))
+print(confusion_matrix(message['type'],all_predictions))
+
